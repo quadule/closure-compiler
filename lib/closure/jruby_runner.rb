@@ -8,7 +8,7 @@ module Closure
       error_contents = java.io.ByteArrayOutputStream.new
       error = java.io.PrintStream.new(error_contents)
       runner = JRubyRunner.new(args.to_java(:String), output, error)
-      runner.do_run
+      runner.doRun
       if !error_contents.to_s.empty?
         raise Error, "compression failed: #{error_contents.to_s}"
       end
@@ -27,6 +27,15 @@ module Closure
       # they time out, which is 60 seconds.
       compiler.disable_threads
       compiler
+    end
+
+    def doRun
+      # Ugly hack to invoke protected method in AbstractCommandLineRunner
+      java_class.superclass.declared_method('doRun').invoke(java_object)
+    end
+
+    def getErrorPrintStream
+      java_send(:getErrorPrintStream)
     end
   end
 end
